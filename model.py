@@ -91,18 +91,6 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
             ax.scatter(data.loc[anomalies, "Date"], data.loc[anomalies, "Close"], 
                        color="#ef4444", s=60, alpha=1.0, edgecolors="white", linewidths=1.2, zorder=4, label="Anomaly")
     else:
-        # Plot moving averages
-        ma20_mask = data["MA_20"].notna()
-        ma50_mask = data["MA_50"].notna()
-        ma200_mask = data["MA_200"].notna()
-        
-        ax.plot(data.loc[ma20_mask, "Date"], data.loc[ma20_mask, "MA_20"], 
-                color="#60a5fa", linewidth=1.5, label="MA 20", alpha=0.8, zorder=2)
-        ax.plot(data.loc[ma50_mask, "Date"], data.loc[ma50_mask, "MA_50"], 
-                color="#fbbf24", linewidth=1.5, label="MA 50", alpha=0.8, zorder=2)
-        ax.plot(data.loc[ma200_mask, "Date"], data.loc[ma200_mask, "MA_200"], 
-                color="#f87171", linewidth=1.5, label="MA 200", alpha=0.8, zorder=2)
-
         ax.scatter(data["Date"], data["Close"], label=f"Actual {target_name}",
                    color="#0f766e", s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3)
         ax.plot(plot_dates, predictions, color="#f97316", linewidth=2.6,
@@ -120,7 +108,7 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
     for spine in ax.spines.values():
         spine.set_color("#333333")
 
-    fig.autofmt_xdate(rotation=35)
+    fig.autofmt_xdate(rotation=0, ha="center")
     fig.tight_layout()
 
     graph_path = os.path.join("static", "graph.png")
@@ -208,7 +196,7 @@ def run_all_models(filepath):
     ax1.tick_params(colors="#a0a0a0")
     for spine in ax1.spines.values():
         spine.set_color("#333333")
-    fig1.autofmt_xdate(rotation=35)
+    fig1.autofmt_xdate(rotation=0, ha="center")
     fig1.tight_layout()
     overlay_path = os.path.join("static", "compare_overlay.png")
     fig1.savefig(overlay_path, dpi=160, bbox_inches="tight")
@@ -235,7 +223,7 @@ def run_all_models(filepath):
         ax.set_title(title, fontsize=11, color="#e0e0e0", pad=10)
         ax.tick_params(colors="#a0a0a0", labelsize=8)
         ax.set_xticks(range(len(names)))
-        ax.set_xticklabels(names, rotation=15, ha="right", fontsize=8, color="#a0a0a0")
+        ax.set_xticklabels(names, rotation=0, ha="center", fontsize=8, color="#a0a0a0")
         ax.grid(axis="y", color="#333333", linestyle="--", linewidth=0.8, alpha=0.9, zorder=0)
         for spine in ax.spines.values():
             spine.set_color("#333333")
