@@ -5,17 +5,63 @@ def _load_and_prep(filepath, start_date=None, end_date=None):
     extension = os.path.splitext(filepath)[1].lower()
     data = pd.read_csv(filepath) if extension == ".csv" else pd.read_excel(filepath)
 
-    required_columns = {"Date", "Close"}
-    missing = required_columns.difference(data.columns)
-    if missing:
-        raise ValueError(f"Missing required column(s): {', '.join(sorted(missing))}.")
+    # 1. Auto-detect Date Column
+    date_col_name = None
+    if "Date" in data.columns:
+        date_col_name = "Date"
+    else:
+        # Check for datetime columns
+        for col in data.columns:
+            if pd.api.types.is_datetime64_any_dtype(data[col]):
+                date_col_name = col
+                break
+        if not date_col_name:
+            # Try to parse string columns as dates
+            for col in data.columns:
+                if data[col].dtype == 'object':
+                    try:
+                        # Attempt to parse the first non-null value to see if it's a date
+                        sample = data[col].dropna().iloc[0]
+                        pd.to_datetime(sample)
+                        date_col_name = col
+                        break
+                    except:
+                        pass
+    
+    if date_col_name:
+        data["Date"] = pd.to_datetime(data[date_col_name], errors="coerce")
+    else:
+        # Generate dummy dates
+        data["Date"] = pd.date_range(start="2020-01-01", periods=len(data))
+        date_col_name = "Index"
 
-    data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-    data["Close"] = pd.to_numeric(data["Close"], errors="coerce")
+    # 2. Auto-detect Target Column
+    target_col_name = None
+    numeric_cols = data.select_dtypes(include=['number']).columns.tolist()
+    if "Date" in numeric_cols:
+        numeric_cols.remove("Date")
+    if date_col_name in numeric_cols:
+        numeric_cols.remove(date_col_name)
+
+    if not numeric_cols:
+        raise ValueError("No numeric columns found to predict.")
+
+    if "Close" in numeric_cols:
+        target_col_name = "Close"
+    elif "Target" in numeric_cols:
+        target_col_name = "Target"
+    elif "y" in numeric_cols:
+        target_col_name = "y"
+    else:
+        target_col_name = numeric_cols[-1]
+
+    data["Close"] = pd.to_numeric(data[target_col_name], errors="coerce")
+    
+    # 3. Clean and prepare
     data = data.dropna(subset=["Date", "Close"]).sort_values("Date").copy()
 
     if len(data) < 2:
-        raise ValueError("At least two valid rows with Date and Close values are required.")
+        raise ValueError("At least two valid rows with data are required.")
 
     # Apply date range filtering if provided
     if start_date:
@@ -30,10 +76,14 @@ def _load_and_prep(filepath, start_date=None, end_date=None):
 
     data["Days"] = (data["Date"] - data["Date"].min()).dt.days
     
-    # Calculate technical indicators
+    # Calculate technical indicators (Moving Averages)
     data["MA_20"] = data["Close"].rolling(window=20).mean()
     data["MA_50"] = data["Close"].rolling(window=50).mean()
     data["MA_200"] = data["Close"].rolling(window=200).mean()
+    
+    # Store original column names so we can use them in the UI and graphs
+    data.attrs["target_col_name"] = target_col_name
+    data.attrs["date_col_name"] = date_col_name
     
     return data
 

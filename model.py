@@ -21,6 +21,9 @@ from ml_models import (
 def run_model(filepath, model_type="Linear Regression", start_date=None, end_date=None):
     data = _load_and_prep(filepath, start_date, end_date)
     
+    target_name = data.attrs.get("target_col_name", "Close")
+    date_name = data.attrs.get("date_col_name", "Date")
+    
     # Feature selection logic
     features = ["Days"]
     if model_type == "Multiple Regression":
@@ -100,16 +103,16 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         ax.plot(data.loc[ma200_mask, "Date"], data.loc[ma200_mask, "MA_200"], 
                 color="#f87171", linewidth=1.5, label="MA 200", alpha=0.8, zorder=2)
 
-        ax.scatter(data["Date"], data["Close"], label="Actual close",
+        ax.scatter(data["Date"], data["Close"], label=f"Actual {target_name}",
                    color="#0f766e", s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3)
         ax.plot(plot_dates, predictions, color="#f97316", linewidth=2.6,
                 label=f"{model_type} forecast", zorder=4)
 
     title_suffix = "Analysis" if is_unsupervised else "Forecast"
-    ax.set_title(f"Closing Price Trend and {model_type} {title_suffix}", 
+    ax.set_title(f"{target_name} Trend and {model_type} {title_suffix}", 
                  fontsize=15, pad=14, color="#e0e0e0")
-    ax.set_xlabel("Date", fontsize=11, color="#a0a0a0")
-    ax.set_ylabel("Closing Price", fontsize=11, color="#a0a0a0")
+    ax.set_xlabel(date_name, fontsize=11, color="#a0a0a0")
+    ax.set_ylabel(target_name, fontsize=11, color="#a0a0a0")
     ax.grid(True, color="#333333", linestyle="--", linewidth=0.8, alpha=0.9)
     ax.legend(loc="upper left", frameon=True, facecolor="#1e1e1e",
               edgecolor="#333333", fontsize=9, labelcolor="#e0e0e0", ncol=2)
@@ -135,12 +138,17 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         "7day_change": metrics["7day_change_%"],
         "30day_change": metrics["30day_change_%"],
         "overall_change": metrics["overall_change_%"],
+        "target_name": target_name,
+        "date_name": date_name
     }
     return graph_path, summary
 
 def run_all_models(filepath):
     data = _load_and_prep(filepath)
     X, y = data[["Days"]], data["Close"]
+
+    target_name = data.attrs.get("target_col_name", "Close")
+    date_name = data.attrs.get("date_col_name", "Date")
 
     models = {
         "Linear Regression": LinearRegressionModel(),
@@ -185,15 +193,15 @@ def run_all_models(filepath):
     fig1, ax1 = plt.subplots(figsize=(13, 6.5), facecolor="#1e1e1e")
     ax1.set_facecolor("#1e1e1e")
 
-    ax1.scatter(data["Date"], data["Close"], label="Actual close",
+    ax1.scatter(data["Date"], data["Close"], label=f"Actual {target_name}",
                 color="#0f766e", s=28, alpha=0.7, edgecolors="#2a2a2a", linewidths=0.6, zorder=3)
     for name, preds in predictions_map.items():
         mask = ~np.isnan(preds)
         ax1.plot(data["Date"][mask], preds[mask], color=colors[name], linewidth=2.2, label=name, zorder=4)
 
     ax1.set_title("All Models — Forecast Overlay", fontsize=15, pad=14, color="#e0e0e0")
-    ax1.set_xlabel("Date", fontsize=11, color="#a0a0a0")
-    ax1.set_ylabel("Closing Price", fontsize=11, color="#a0a0a0")
+    ax1.set_xlabel(date_name, fontsize=11, color="#a0a0a0")
+    ax1.set_ylabel(target_name, fontsize=11, color="#a0a0a0")
     ax1.grid(True, color="#333333", linestyle="--", linewidth=0.8, alpha=0.9)
     ax1.legend(loc="upper left", frameon=True, facecolor="#1e1e1e",
                edgecolor="#333333", fontsize=10, labelcolor="#e0e0e0")
@@ -249,6 +257,8 @@ def run_all_models(filepath):
         "start_date": data["Date"].min().strftime("%d %b %Y"),
         "end_date":   data["Date"].max().strftime("%d %b %Y"),
         "latest_close": f"{data['Close'].iloc[-1]:.2f}",
+        "target_name": target_name,
+        "date_name": date_name
     }
 
     return overlay_path, accuracy_path, results, summary

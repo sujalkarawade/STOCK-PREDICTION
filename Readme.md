@@ -28,9 +28,13 @@ A Flask web app for uploading stock data and visualizing closing price trends us
 
 ## Input Format
 
-File must contain at least these two columns:
+The application now supports **generic sequential data**. It will automatically detect:
+1. **Date/Time column** (if none is found, it will generate a sequence index).
+2. **Target column** (looks for "Close", "Target", "y", or defaults to the last numeric column).
 
-| Date | Close |
+Example of a valid file:
+
+| Date | Sales |
 |---|---|
 | 2024-01-01 | 150.00 |
 | 2024-01-02 | 152.50 |
