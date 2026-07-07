@@ -7,9 +7,9 @@ A Flask web app for uploading stock data and visualizing closing price trends us
 ## Features
 
 - Upload stock data as CSV, XLS, or XLSX
-- Choose from 4 ML models via a custom styled dropdown
+- Choose from 5 supervised/forecast ML models via a custom styled dropdown
 - View Actual vs Predicted chart with a data summary panel
-- Multi-Model Comparison Dashboard — runs all 4 models at once, shows forecast overlay and accuracy metrics (R², MAE, RMSE)
+- Multi-Model Comparison Dashboard — runs all 5 supervised models at once, shows forecast overlay and accuracy metrics (R², MAE, RMSE)
 - Light / Dark theme toggle that persists across pages (respects OS preference on first visit)
 - Auto-opens browser on `python app.py`
 
@@ -20,9 +20,10 @@ A Flask web app for uploading stock data and visualizing closing price trends us
 | Model | Notes |
 |---|---|
 | Linear Regression | Fast baseline, straight-line trend |
-| Decision Tree Regressor | Non-linear, fits local patterns |
-| Random Forest Regressor | Ensemble, robust to noise |
-| XGBoost Regressor | Gradient boosting, high accuracy |
+| Multiple Regression | Uses date index with moving-average features when available |
+| Polynomial Regression | Captures curved trend lines |
+| KNN Regressor | Local-neighborhood based regression |
+| Random Forest Regressor | Ensemble, robust to non-linear patterns |
 
 ---
 
@@ -69,7 +70,7 @@ StockPredictionFlask/
 ```bash
 git clone https://github.com/yourusername/stock-price-prediction.git
 cd stock-price-prediction
-pip install flask pandas scikit-learn matplotlib openpyxl xgboost werkzeug numpy
+pip install flask pandas scikit-learn matplotlib openpyxl werkzeug numpy
 ```
 
 ---
@@ -90,8 +91,7 @@ Browser opens automatically at `http://127.0.0.1:5000`.
 |---|---|
 | Python + Flask | Backend and routing |
 | Pandas + NumPy | Data loading and preprocessing |
-| Scikit-learn | Linear Regression, Decision Tree, Random Forest, metrics |
-| XGBoost | XGBoost Regressor |
+| Scikit-learn | Linear Regression, Multiple Regression, Polynomial Regression, KNN, Random Forest, metrics |
 | Matplotlib | Chart generation |
 | HTML / CSS / JS | Frontend UI with theme support |
 

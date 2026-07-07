@@ -12,6 +12,7 @@ from ml_models import (
     LogisticRegressionModel,
     PolynomialRegressionModel,
     KNNRegressorModel,
+    RandomForestRegressionModel,
     KMeansClusteringModel,
     IsolationForestModel,
     _load_and_prep,
@@ -58,6 +59,8 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         model = PolynomialRegressionModel(degree=2)
     elif model_type == "KNN":
         model = KNNRegressorModel(n_neighbors=5)
+    elif model_type == "Random Forest":
+        model = RandomForestRegressionModel(n_estimators=200, random_state=42)
     elif model_type == "K-Means":
         model = KMeansClusteringModel(n_clusters=3)
     elif model_type == "Isolation Forest":
@@ -143,12 +146,14 @@ def run_all_models(filepath):
         "Multiple Regression": MultipleRegressionModel(),
         "Polynomial": PolynomialRegressionModel(degree=2),
         "KNN": KNNRegressorModel(n_neighbors=5),
+        "Random Forest": RandomForestRegressionModel(n_estimators=200, random_state=42),
     }
     colors = {
         "Linear Regression": "#3b82f6",
         "Multiple Regression": "#f97316",
         "Polynomial": "#22c55e",
         "KNN": "#a855f7",
+        "Random Forest": "#eab308",
     }
 
     results = {}
@@ -156,7 +161,12 @@ def run_all_models(filepath):
 
     for name, m in models.items():
         if name == "Multiple Regression":
-            features = ["Days", "MA_20", "MA_50"]
+            features = ["Days"]
+            if data["MA_20"].notna().sum() >= 2:
+                features.append("MA_20")
+            if data["MA_50"].notna().sum() >= 2:
+                features.append("MA_50")
+
             data_m = data.dropna(subset=features)
             X_m, y_m = data_m[features], data_m["Close"]
             m.fit(X_m, y_m)

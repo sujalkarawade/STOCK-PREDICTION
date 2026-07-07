@@ -3,6 +3,7 @@ from .multiple_regression import MultipleRegressionModel
 from .logistic_regression import LogisticRegressionModel
 from .polynomial_regression import PolynomialRegressionModel
 from .knn_regressor import KNNRegressorModel
+from .random_forest_regression import RandomForestRegressionModel
 from .kmeans_clustering import KMeansClusteringModel
 from .isolation_forest import IsolationForestModel
 from .utils import _load_and_prep, _calculate_volatility_and_changes

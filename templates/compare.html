@@ -36,9 +36,10 @@
                 <div class="compare-metrics">
                     {% set model_colors = {
                         "Linear Regression": "#3b82f6",
-                        "Decision Tree":     "#f97316",
-                        "Random Forest":     "#22c55e",
-                        "XGBoost":           "#a855f7"
+                        "Multiple Regression": "#f97316",
+                        "Polynomial":          "#22c55e",
+                        "KNN":                 "#a855f7",
+                        "Random Forest":       "#eab308"
                     } %}
                     {% set best_r2   = results.values() | map(attribute='r2')   | max %}
                     {% set best_mae  = results.values() | map(attribute='mae')  | min %}
