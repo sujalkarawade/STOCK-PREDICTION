@@ -7,4 +7,5 @@ from .random_forest_regression import RandomForestRegressionModel
 from .decision_tree_regression import DecisionTreeRegressionModel
 from .kmeans_clustering import KMeansClusteringModel
 from .isolation_forest import IsolationForestModel
+from .one_class_svm import OneClassSVMModel
 from .utils import _load_and_prep, _calculate_volatility_and_changes

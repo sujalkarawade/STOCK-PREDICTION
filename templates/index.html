@@ -71,7 +71,7 @@
                                     <svg class="custom-select__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                                 <ul class="custom-select__dropdown" role="listbox" id="modelDropdown">
-                                    <!-- Options will be populated by JS -->
+                                    <!-- Supervised models -->
                                     <li class="custom-select__option selected" role="option" data-value="Linear Regression" data-type="Supervised">
                                         <span class="option-icon">📈</span> Linear Regression
                                     </li>
@@ -87,11 +87,15 @@
                                     <li class="custom-select__option" role="option" data-value="Decision Tree" data-type="Supervised">
                                         <span class="option-icon">🌳</span> Decision Tree Regression
                                     </li>
+                                    <!-- Unsupervised models -->
                                     <li class="custom-select__option" role="option" data-value="K-Means" data-type="Unsupervised" style="display: none;">
                                         <span class="option-icon">💠</span> K-Means Clustering
                                     </li>
                                     <li class="custom-select__option" role="option" data-value="Isolation Forest" data-type="Unsupervised" style="display: none;">
                                         <span class="option-icon">🚨</span> Isolation Forest
+                                    </li>
+                                    <li class="custom-select__option" role="option" data-value="One-Class SVM" data-type="Unsupervised" style="display: none;">
+                                        <span class="option-icon">🔮</span> One-Class SVM
                                     </li>
                                 </ul>
                             </div>

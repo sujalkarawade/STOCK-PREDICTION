@@ -16,6 +16,7 @@ from ml_models import (
     DecisionTreeRegressionModel,
     KMeansClusteringModel,
     IsolationForestModel,
+    OneClassSVMModel,
     _load_and_prep,
     _calculate_volatility_and_changes
 )
@@ -47,7 +48,7 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         X, y = data[features], data["Close"]
         plot_dates = data["Date"]
 
-    is_unsupervised = model_type in ["K-Means", "Isolation Forest"]
+    is_unsupervised = model_type in ["K-Means", "Isolation Forest", "One-Class SVM"]
 
     if model_type == "Multiple Regression":
         model = MultipleRegressionModel()
@@ -68,6 +69,8 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         model = KMeansClusteringModel(n_clusters=3)
     elif model_type == "Isolation Forest":
         model = IsolationForestModel(contamination=0.05)
+    elif model_type == "One-Class SVM":
+        model = OneClassSVMModel(nu=0.05, kernel="rbf", gamma="scale")
     else:
         model = LinearRegressionModel()
 
@@ -85,17 +88,23 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
 
     if is_unsupervised:
         if model_type == "K-Means":
-            scatter = ax.scatter(data["Date"], data["Close"], c=results_labels, cmap="viridis", 
+            scatter = ax.scatter(data["Date"], data["Close"], c=results_labels, cmap="viridis",
                                  s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3, label="Clusters")
-            legend1 = ax.legend(*scatter.legend_elements(), loc="upper left", title="Clusters", 
+            legend1 = ax.legend(*scatter.legend_elements(), loc="upper left", title="Clusters",
                                frameon=True, facecolor="#1e1e1e", edgecolor="#333333", labelcolor="#e0e0e0")
             ax.add_artist(legend1)
-        else: # Isolation Forest
+        elif model_type == "Isolation Forest":
             anomalies = results_labels == -1
-            ax.scatter(data.loc[~anomalies, "Date"], data.loc[~anomalies, "Close"], 
+            ax.scatter(data.loc[~anomalies, "Date"], data.loc[~anomalies, "Close"],
                        color="#0f766e", s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3, label="Normal")
-            ax.scatter(data.loc[anomalies, "Date"], data.loc[anomalies, "Close"], 
+            ax.scatter(data.loc[anomalies, "Date"], data.loc[anomalies, "Close"],
                        color="#ef4444", s=60, alpha=1.0, edgecolors="white", linewidths=1.2, zorder=4, label="Anomaly")
+        else:  # One-Class SVM
+            novelties = results_labels == -1
+            ax.scatter(data.loc[~novelties, "Date"], data.loc[~novelties, "Close"],
+                       color="#6366f1", s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3, label="Normal")
+            ax.scatter(data.loc[novelties, "Date"], data.loc[novelties, "Close"],
+                       color="#f43f5e", s=64, alpha=1.0, edgecolors="white", linewidths=1.2, zorder=4, label="Novelty")
     else:
         ax.scatter(data["Date"], data["Close"], label=f"Actual {target_name}",
                    color="#0f766e", s=48, alpha=0.9, edgecolors="#2a2a2a", linewidths=0.9, zorder=3)
@@ -103,7 +112,7 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
                 label=f"{model_type} forecast", zorder=4)
 
     title_suffix = "Analysis" if is_unsupervised else "Forecast"
-    ax.set_title(f"{target_name} Trend and {model_type} {title_suffix}", 
+    ax.set_title(f"{target_name} Trend and {model_type} {title_suffix}",
                  fontsize=15, pad=14, color="#e0e0e0")
     ax.set_xlabel(date_name, fontsize=11, color="#a0a0a0")
     ax.set_ylabel(target_name, fontsize=11, color="#a0a0a0")
@@ -140,7 +149,6 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
 def run_all_models(filepath):
     data = _load_and_prep(filepath)
     X, y = data[["Days"]], data["Close"]
-
     target_name = data.attrs.get("target_col_name", "Close")
     date_name = data.attrs.get("date_col_name", "Date")
 
