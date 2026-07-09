@@ -13,6 +13,7 @@ from ml_models import (
     PolynomialRegressionModel,
     KNNRegressorModel,
     RandomForestRegressionModel,
+    DecisionTreeRegressionModel,
     KMeansClusteringModel,
     IsolationForestModel,
     _load_and_prep,
@@ -61,6 +62,8 @@ def run_model(filepath, model_type="Linear Regression", start_date=None, end_dat
         model = KNNRegressorModel(n_neighbors=5)
     elif model_type == "Random Forest":
         model = RandomForestRegressionModel(n_estimators=200, random_state=42)
+    elif model_type == "Decision Tree":
+        model = DecisionTreeRegressionModel(max_depth=5, random_state=42)
     elif model_type == "K-Means":
         model = KMeansClusteringModel(n_clusters=3)
     elif model_type == "Isolation Forest":
@@ -147,6 +150,7 @@ def run_all_models(filepath):
         "Polynomial": PolynomialRegressionModel(degree=2),
         "KNN": KNNRegressorModel(n_neighbors=5),
         "Random Forest": RandomForestRegressionModel(n_estimators=200, random_state=42),
+        "Decision Tree": DecisionTreeRegressionModel(max_depth=5, random_state=42),
     }
     colors = {
         "Linear Regression": "#3b82f6",
@@ -154,6 +158,7 @@ def run_all_models(filepath):
         "Polynomial": "#22c55e",
         "KNN": "#a855f7",
         "Random Forest": "#eab308",
+        "Decision Tree": "#ec4899",
     }
 
     results = {}
